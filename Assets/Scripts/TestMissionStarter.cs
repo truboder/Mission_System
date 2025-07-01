@@ -9,18 +9,6 @@ public class TestMissionStarter : MonoBehaviour
 
     private void Start()
     {
-        if (testChain1 == null)
-        {
-            Debug.LogError("TestChain1 is not assigned!");
-            return;
-        }
-
-        if (testChain2 == null)
-        {
-            Debug.LogError("TestChain2 is not assigned!");
-            return;
-        }
-
         MissionService missionService = ServiceLocator.Instance.GetService<MissionService>();
         if (missionService == null)
         {
