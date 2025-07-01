@@ -6,7 +6,7 @@ namespace Services
 {
     public class MissionService
     {
-        private readonly HashSet<MissionChain> activeChains = new HashSet<MissionChain>();
+        private readonly HashSet<MissionChain> _activeChains = new HashSet<MissionChain>();
 
         public bool StartChain(MissionChain chain)
         {
@@ -16,15 +16,15 @@ namespace Services
                 return false;
             }
 
-            if (activeChains.Contains(chain))
+            if (_activeChains.Contains(chain))
             {
                 Debug.LogWarning("Mission chain is already running.");
                 return false;
             }
 
-            activeChains.Add(chain);
+            _activeChains.Add(chain);
             MissionSystem missionSystem = ServiceLocator.Instance.GetService<MissionSystem>();
-            missionSystem.StartChain(chain, () => activeChains.Remove(chain));
+            missionSystem.StartChain(chain, () => _activeChains.Remove(chain));
             return true;
         }
     }

@@ -5,29 +5,29 @@ namespace Services
 {
     public class ServiceLocator
     {
-        private static ServiceLocator instance;
-        private readonly Dictionary<Type, object> services = new Dictionary<Type, object>();
+        private static ServiceLocator _instance;
+        private readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
 
         public static ServiceLocator Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
                     throw new InvalidOperationException("ServiceLocator is not initialized.");
                 }
-                return instance;
+                return _instance;
             }
         }
 
         public void RegisterService<T>(T service)
         {
-            services[typeof(T)] = service;
+            _services[typeof(T)] = service;
         }
 
         public T GetService<T>()
         {
-            if (services.TryGetValue(typeof(T), out object service))
+            if (_services.TryGetValue(typeof(T), out object service))
             {
                 return (T)service;
             }
@@ -36,11 +36,11 @@ namespace Services
 
         internal ServiceLocator()
         {
-            if (instance != null)
+            if (_instance != null)
             {
                 throw new InvalidOperationException("ServiceLocator is already initialized.");
             }
-            instance = this;
+            _instance = this;
         }
     }
 }
