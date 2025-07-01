@@ -4,15 +4,9 @@ using UnityEngine;
 
 namespace Services
 {
-    public class MissionService : MonoBehaviour
+    public class MissionService
     {
-        private MissionSystem missionSystem;
-        private HashSet<MissionChain> activeChains = new HashSet<MissionChain>();
-
-        private void Awake()
-        {
-            missionSystem = gameObject.AddComponent<MissionSystem>();
-        }
+        private readonly HashSet<MissionChain> activeChains = new HashSet<MissionChain>();
 
         public bool StartChain(MissionChain chain)
         {
@@ -29,6 +23,7 @@ namespace Services
             }
 
             activeChains.Add(chain);
+            MissionSystem missionSystem = ServiceLocator.Instance.GetService<MissionSystem>();
             missionSystem.StartChain(chain, () => activeChains.Remove(chain));
             return true;
         }

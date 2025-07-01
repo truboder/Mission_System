@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace Missions
+namespace Missions.SpecificMissions
 {
     [CreateAssetMenu(fileName = "NewWaitForInputMission", menuName = "Missions/WaitForInputMission")]
     public class WaitForInputMission : MissionBase

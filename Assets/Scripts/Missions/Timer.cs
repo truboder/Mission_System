@@ -11,14 +11,13 @@ namespace Missions
         public async UniTask StartAsync(int ms, Action onComplete = null)
         {
             _cts = new CancellationTokenSource();
+            
             try
             {
                 await UniTask.Delay(ms, cancellationToken: _cts.Token);
                 onComplete?.Invoke();
             }
-            catch (OperationCanceledException)
-            {
-            }
+            catch (OperationCanceledException) { }
         }
 
         public void Cancel()

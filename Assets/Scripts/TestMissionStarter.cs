@@ -6,19 +6,29 @@ public class TestMissionStarter : MonoBehaviour
 {
     [SerializeField] private MissionChain testChain1;
     [SerializeField] private MissionChain testChain2;
-    private MissionService missionService;
 
     private void Start()
     {
-        missionService = FindObjectOfType<MissionService>();
-        if (missionService != null)
+        if (testChain1 == null)
         {
-            if (testChain1 != null) missionService.StartChain(testChain1);
-            if (testChain2 != null) missionService.StartChain(testChain2);
+            Debug.LogError("TestChain1 is not assigned!");
+            return;
         }
-        else
+
+        if (testChain2 == null)
+        {
+            Debug.LogError("TestChain2 is not assigned!");
+            return;
+        }
+
+        MissionService missionService = ServiceLocator.Instance.GetService<MissionService>();
+        if (missionService == null)
         {
             Debug.LogError("MissionService not found!");
+            return;
         }
+
+        missionService.StartChain(testChain1);
+        missionService.StartChain(testChain2);
     }
 }
