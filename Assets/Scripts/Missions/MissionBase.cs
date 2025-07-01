@@ -7,7 +7,6 @@ namespace Missions
     {
         [SerializeField] private string missionName;
         [SerializeField] private float startDelaySeconds;
-        [SerializeField] private MissionBase nextMission;
 
         public event Action OnStarted;
         public event Action OnMissionPointReached;
@@ -15,7 +14,6 @@ namespace Missions
 
         public string MissionName => missionName;
         public float StartDelaySeconds => startDelaySeconds;
-        public MissionBase NextMission => nextMission;
 
         public void Start()
         {

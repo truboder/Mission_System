@@ -9,7 +9,12 @@ namespace Infrastructure
         {
             var serviceLocator = new ServiceLocator();
             var installer = new DependencyInstaller();
+            
             installer.InstallBindings(serviceLocator);
+            
+            var missionExecutorGameObject = new GameObject("MissionChainExecutor");
+            missionExecutorGameObject.AddComponent<MissionChainExecutor>();
+            DontDestroyOnLoad(missionExecutorGameObject);
             DontDestroyOnLoad(gameObject);
         }
     }

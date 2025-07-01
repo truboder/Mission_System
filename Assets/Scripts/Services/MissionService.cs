@@ -1,30 +1,29 @@
+using System;
 using System.Collections.Generic;
-using Missions;
 using UnityEngine;
+using Missions;
 
 namespace Services
 {
     public class MissionService
     {
         private readonly HashSet<MissionChain> _activeChains = new HashSet<MissionChain>();
+        public event Action<MissionChain, Action> ChainStarted;
 
         public bool StartChain(MissionChain chain)
         {
             if (chain == null || chain.Missions == null || chain.Missions.Length == 0)
             {
-                Debug.LogWarning("Invalid mission chain.");
                 return false;
             }
 
             if (_activeChains.Contains(chain))
             {
-                Debug.LogWarning("Mission chain is already running.");
                 return false;
             }
 
             _activeChains.Add(chain);
-            MissionSystem missionSystem = ServiceLocator.Instance.GetService<MissionSystem>();
-            missionSystem.StartChain(chain, () => _activeChains.Remove(chain));
+            ChainStarted?.Invoke(chain, () => _activeChains.Remove(chain));
             return true;
         }
     }

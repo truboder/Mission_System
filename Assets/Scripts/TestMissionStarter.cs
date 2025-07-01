@@ -1,3 +1,4 @@
+using Infrastructure;
 using Missions;
 using Services;
 using UnityEngine;
@@ -10,9 +11,9 @@ public class TestMissionStarter : MonoBehaviour
     private void Start()
     {
         MissionService missionService = ServiceLocator.Instance.GetService<MissionService>();
+        
         if (missionService == null)
         {
-            Debug.LogError("MissionService not found!");
             return;
         }
 
