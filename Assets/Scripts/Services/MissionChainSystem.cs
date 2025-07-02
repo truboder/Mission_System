@@ -77,7 +77,7 @@ namespace Services
             if (activeChain.Index >= chain.Missions.Length - 1)
             {
                 _activeChains.Remove(chain);
-                activeChain.OnCompleted?.Invoke();
+                activeChain.OnCompleted = null;
                 return;
             }
 
