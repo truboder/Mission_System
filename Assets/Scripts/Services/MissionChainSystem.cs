@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using Infrastructure;
 using Missions;
 
 namespace Services
 {
-    public class MissionChainSystem : IInitializable
+    public class MissionChainSystem : IInitializable, IDisposable
     {
+        private const int MillisecondsPerSecond = 1000;
+        
         private readonly Dictionary<MissionChain, ActiveChain> _activeChains = new Dictionary<MissionChain, ActiveChain>();
         private readonly MissionService _missionService;
 
@@ -19,6 +20,11 @@ namespace Services
         public void Initialize()
         {
             _missionService.ChainStarted += OnChainStarted;
+        }
+
+        public void Dispose()
+        {
+            _missionService.ChainStarted -= OnChainStarted;
         }
 
         private void OnChainStarted(MissionChain chain)
@@ -45,9 +51,11 @@ namespace Services
 
             var mission = chain.Missions[activeChain.Index];
 
+            var timer = new Timer();
+            
             if (mission.StartDelaySeconds > 0)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(mission.StartDelaySeconds));
+                await timer.StartAsync((int)(mission.StartDelaySeconds * MillisecondsPerSecond));
             }
 
             mission.OnFinished += () => OnMissionCompleted(chain);
