@@ -1,4 +1,4 @@
-using Services;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Infrastructure
@@ -11,9 +11,14 @@ namespace Infrastructure
             var installer = new DependencyInstaller();
             
             installer.InstallBindings(serviceLocator);
+
+            var initializables = serviceLocator.GetService<List<IInitializable>>();
             
-            var missionService = serviceLocator.GetService<MissionService>();
-            new MissionChainExecutor(missionService);
+            foreach (var initializable in initializables)
+            {
+                initializable.Initialize();
+            }
+
             DontDestroyOnLoad(gameObject);
         }
     }
