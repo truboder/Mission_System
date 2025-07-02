@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,19 +8,28 @@ namespace Infrastructure
     {
         private void Awake()
         {
-            var serviceLocator = new ServiceLocator();
-            var installer = new DependencyInstaller();
-            
+            ServiceLocator serviceLocator = new ServiceLocator();
+            DependencyInstaller installer = new DependencyInstaller();
             installer.InstallBindings(serviceLocator);
 
-            var initializables = serviceLocator.GetService<List<IInitializable>>();
+            List<IInitializable> initializables = serviceLocator.GetService<List<IInitializable>>();
             
-            foreach (var initializable in initializables)
+            foreach (IInitializable initializable in initializables)
             {
                 initializable.Initialize();
             }
 
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            List<IDisposable> disposables = ServiceLocator.Instance.GetService<List<IDisposable>>();
+            
+            foreach (IDisposable disposable in disposables)
+            {
+                disposable.Dispose();
+            }
         }
     }
 }

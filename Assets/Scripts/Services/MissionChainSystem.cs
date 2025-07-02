@@ -34,7 +34,13 @@ namespace Services
                 return;
             }
 
-            var activeChain = new ActiveChain { Chain = chain, Index = -1 };
+            ActiveChain activeChain = new ActiveChain 
+            { 
+                Chain = chain, 
+                Index = -1, 
+                OnCompleted = () => _missionService.StartChain(null)
+            };
+            
             _activeChains[chain] = activeChain;
             StartNextMission(chain);
         }
@@ -49,12 +55,11 @@ namespace Services
             activeChain.Index++;
             _activeChains[chain] = activeChain;
 
-            var mission = chain.Missions[activeChain.Index];
+            MissionBase mission = chain.Missions[activeChain.Index];
 
-            var timer = new Timer();
-            
             if (mission.StartDelaySeconds > 0)
             {
+                Timer timer = new Timer();
                 await timer.StartAsync((int)(mission.StartDelaySeconds * MillisecondsPerSecond));
             }
 

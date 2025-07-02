@@ -11,10 +11,15 @@ namespace Infrastructure
 
         public void InstallBindings(ServiceLocator locator)
         {
-            var missionService = new MissionService();
+            MissionService missionService = new MissionService();
+            MissionChainSystem missionChainSystem = new MissionChainSystem(missionService);
+
             locator.RegisterService(missionService);
-            _initializables.Add(new MissionChainSystem(missionService));
+            locator.RegisterService(missionChainSystem);
+
+            _initializables.Add(missionChainSystem);
             _disposables.Add(missionService);
+            _disposables.Add(missionChainSystem);
 
             locator.RegisterService(_initializables);
             locator.RegisterService(_disposables);
