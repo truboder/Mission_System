@@ -1,72 +1,53 @@
 using System;
 using System.Collections.Generic;
-using Infrastructure;
-using UnityEngine;
+using Cysharp.Threading.Tasks;
 using Missions;
 
 namespace Services
 {
-    public class MissionChainExecutor : MonoBehaviour
+    public class MissionChainExecutor
     {
-        private const int SecondsToMilliseconds = 1000;
-
         private readonly Dictionary<MissionChain, ActiveChain> _activeChains = new Dictionary<MissionChain, ActiveChain>();
-        private readonly Dictionary<MissionBase, Timer> _missionTimers = new Dictionary<MissionBase, Timer>();
 
-        private void Start()
+        public MissionChainExecutor(MissionService missionService)
         {
-            var missionService = ServiceLocator.Instance.GetService<MissionService>();
             missionService.ChainStarted += OnChainStarted;
         }
 
-        private void OnDestroy()
+        private void OnChainStarted(MissionChain chain)
         {
-            var missionService = ServiceLocator.Instance.GetService<MissionService>();
-            missionService.ChainStarted -= OnChainStarted;
+            if (_activeChains.ContainsKey(chain)) return;
+
+            var activeChain = new ActiveChain { Chain = chain, Index = 0 };
+            _activeChains[chain] = activeChain;
+            StartMission(chain.Missions[0], chain);
         }
 
-        private void OnChainStarted(MissionChain chain, Action onChainCompleted)
+        private async void StartMission(MissionBase mission, MissionChain chain)
         {
-            if (!_activeChains.ContainsKey(chain))
-            {
-                var activeChain = new ActiveChain { Chain = chain, Index = 0, OnCompleted = onChainCompleted };
-                _activeChains[chain] = activeChain;
-                StartMission(chain.Missions[0], chain, onChainCompleted);
-            }
-        }
-
-        private async void StartMission(MissionBase mission, MissionChain chain, Action onChainCompleted)
-        {
-            Timer timer = new Timer();
-            _missionTimers[mission] = timer;
-
             if (mission.StartDelaySeconds > 0)
             {
-                await timer.StartAsync((int)(mission.StartDelaySeconds * SecondsToMilliseconds));
+                await UniTask.Delay(TimeSpan.FromSeconds(mission.StartDelaySeconds));
             }
 
-            mission.OnFinished += () => OnMissionCompleted(mission, chain, onChainCompleted);
+            mission.OnFinished += () => OnMissionCompleted(mission, chain);
             mission.Start();
         }
 
-        private void OnMissionCompleted(MissionBase mission, MissionChain chain, Action onChainCompleted)
+        private void OnMissionCompleted(MissionBase mission, MissionChain chain)
         {
-            _missionTimers.Remove(mission);
-
-            if (_activeChains.TryGetValue(chain, out ActiveChain activeChain))
+            if (!_activeChains.TryGetValue(chain, out ActiveChain activeChain)) return;
+            
+            if (activeChain.Index >= chain.Missions.Length - 1)
             {
-                if (activeChain.Index < chain.Missions.Length - 1)
-                {
-                    activeChain.Index++;
-                    _activeChains[chain] = activeChain;
-                    StartMission(chain.Missions[activeChain.Index], chain, onChainCompleted);
-                }
-                else
-                {
-                    _activeChains.Remove(chain);
-                    onChainCompleted?.Invoke();
-                }
+                _activeChains.Remove(chain);
+                activeChain.OnCompleted?.Invoke();
+                return;
             }
+
+            activeChain.Index++;
+            _activeChains[chain] = activeChain;
+            StartMission(chain.Missions[activeChain.Index], chain);
         }
     }
 }

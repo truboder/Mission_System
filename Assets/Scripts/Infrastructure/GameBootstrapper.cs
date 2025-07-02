@@ -12,9 +12,8 @@ namespace Infrastructure
             
             installer.InstallBindings(serviceLocator);
             
-            var missionExecutorGameObject = new GameObject("MissionChainExecutor");
-            missionExecutorGameObject.AddComponent<MissionChainExecutor>();
-            DontDestroyOnLoad(missionExecutorGameObject);
+            var missionService = serviceLocator.GetService<MissionService>();
+            new MissionChainExecutor(missionService);
             DontDestroyOnLoad(gameObject);
         }
     }
